@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Lightbulb, Loader2 } from "lucide-react";
 import { useAuth, ApiError } from "@/lib/auth-context";
 
 export default function LoginPage() {
@@ -35,11 +36,16 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col md:flex-row" style={{ background: "var(--surface-bg)" }}>
       <div
         className="hidden md:flex flex-1 flex-col justify-center px-16 text-white"
-        style={{ background: "var(--ink)" }}
+        style={{ background: "var(--sidebar-bg)" }}
       >
-        <div className="text-4xl text-gray-400 mb-5">🏢</div>
-        <h1 className="text-3xl font-bold mb-3">Office Automation System</h1>
-        <p className="text-gray-300 max-w-md leading-relaxed">
+        <span
+          className="mb-6 grid h-14 w-14 place-items-center rounded-2xl"
+          style={{ background: "var(--brand)", color: "var(--brand-contrast)" }}
+        >
+          <Lightbulb size={28} />
+        </span>
+        <h1 className="text-3xl font-bold mb-3 text-balance">Office Automation System</h1>
+        <p className="text-white/70 max-w-md leading-relaxed">
           ระบบจัดการกระบวนการทำงานสำนักงาน บริษัท ไทย หมิง ไลท์ติ้ง จำกัด — ตรวจสอบชิ้นงาน อนุมัติงาน
           รายงานประจำสัปดาห์ และข้อมูลไฟฟ้าจากมิเตอร์อัจฉริยะ ในที่เดียว
         </p>
@@ -86,15 +92,17 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-md bg-[var(--ink)] text-white py-2 text-sm font-medium hover:bg-black disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-[var(--brand-contrast)] transition-colors hover:bg-[var(--brand-strong)] disabled:opacity-60"
+              style={{ background: "var(--brand)" }}
             >
+              {submitting && <Loader2 size={16} className="animate-spin" />}
               {submitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </button>
           </form>
 
           <p className="text-center mt-4 text-sm">
             ยังไม่มีบัญชี?{" "}
-            <Link href="/register" className="font-semibold text-[var(--ink)]">
+            <Link href="/register" className="font-semibold text-[var(--brand-strong)] hover:underline">
               สมัครสมาชิก
             </Link>
           </p>
