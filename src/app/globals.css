@@ -1,19 +1,83 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #111827;
-  --ink-soft: #374151;
-  --text-muted: #6b7280;
-  --surface-bg: #f7f7f8;
+  /* base neutrals */
+  --ink: #1a2233;
+  --ink-soft: #45506b;
+  --text-muted: #737d92;
+  --surface-bg: #f4f5f8;
   --surface-card: #ffffff;
-  --line: #e6e7eb;
-  --line-strong: #d1d5db;
-  --hover-tint: #f3f4f6;
-  --active-tint: #eceef1;
+  --line: #e7e9ef;
+  --line-strong: #d6dae2;
+  --hover-tint: #f1f3f7;
+  --active-tint: #eceff4;
+
+  /* brand — warm amber/gold, fitting a lighting company */
+  --brand: #e0900f;
+  --brand-strong: #c27a08;
+  --brand-tint: #fdf4e3;
+  --brand-contrast: #ffffff;
+
+  /* status */
+  --success: #15803d;
+  --success-tint: #e6f5ec;
+  --danger: #b91c1c;
+  --danger-tint: #fdecec;
+  --warning: #b45309;
+  --warning-tint: #fbf1dd;
+  --info: #1d6f8b;
+  --info-tint: #e4f1f6;
+
+  /* dark sidebar */
+  --sidebar-bg: #151a24;
+  --sidebar-bg-soft: #1e2532;
+  --sidebar-line: #29313f;
+  --sidebar-text: #9aa4b8;
+  --sidebar-text-strong: #ffffff;
+
+  --radius: 0.7rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-noto-thai), "Segoe UI", -apple-system, sans-serif;
+}
+
+html {
+  background: var(--surface-bg);
 }
 
 body {
   background: var(--surface-bg);
   color: var(--ink);
-  font-family: "Segoe UI", "Noto Sans Thai", -apple-system, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* refined scrollbar for sidebar / scroll areas */
+.scroll-slim::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+.scroll-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.18s ease-out;
 }

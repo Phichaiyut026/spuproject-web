@@ -6,8 +6,8 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
-        <h3 className="text-xl font-bold text-[var(--ink)]">{title}</h3>
-        {subtitle && <div className="text-sm text-[var(--text-muted)]">{subtitle}</div>}
+        <h3 className="text-2xl font-bold tracking-tight text-[var(--ink)] text-balance">{title}</h3>
+        {subtitle && <div className="mt-0.5 text-sm text-[var(--text-muted)]">{subtitle}</div>}
       </div>
       {action}
     </div>
@@ -31,12 +31,12 @@ export function CardHeader({ children }: { children: ReactNode }) {
 }
 
 const badgeColors: Record<string, string> = {
-  success: "bg-[#e5f5ec] text-[#14683c]",
-  danger: "bg-[#fdeaea] text-[#a02121]",
-  warning: "bg-[#fbf3dd] text-[#8a6116]",
+  success: "bg-[var(--success-tint)] text-[var(--success)]",
+  danger: "bg-[var(--danger-tint)] text-[var(--danger)]",
+  warning: "bg-[var(--warning-tint)] text-[var(--warning)]",
   secondary: "bg-[var(--hover-tint)] text-[var(--ink-soft)]",
-  primary: "bg-[#e8ebf5] text-[#33406e]",
-  info: "bg-[#e3f1f7] text-[#1f5a74]",
+  primary: "bg-[var(--brand-tint)] text-[var(--brand-strong)]",
+  info: "bg-[var(--info-tint)] text-[var(--info)]",
 };
 
 export function Badge({ tone, children }: { tone: keyof typeof badgeColors; children: ReactNode }) {
@@ -65,13 +65,14 @@ export function Button({
   children: ReactNode;
   variant?: "primary" | "outline" | "danger" | "outline-danger" | "success";
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  const base = "inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-medium transition-colors";
+  const base =
+    "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors disabled:opacity-60";
   const variants = {
-    primary: "bg-[var(--ink)] text-white hover:bg-black",
+    primary: "bg-[var(--brand)] text-[var(--brand-contrast)] hover:bg-[var(--brand-strong)]",
     outline: "border text-[var(--ink-soft)] hover:bg-[var(--hover-tint)]",
-    danger: "bg-[#b91c1c] text-white hover:bg-[#991717]",
-    "outline-danger": "border text-[#a02121] hover:bg-[#fdeaea]",
-    success: "bg-[#1a7f4b] text-white hover:bg-[#166b3f]",
+    danger: "bg-[var(--danger)] text-white hover:brightness-95",
+    "outline-danger": "border text-[var(--danger)] hover:bg-[var(--danger-tint)]",
+    success: "bg-[var(--success)] text-white hover:brightness-95",
   };
   return (
     <button
@@ -93,9 +94,10 @@ export function LinkButton({
   children: ReactNode;
   variant?: "primary" | "outline";
 }) {
-  const base = "inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-medium transition-colors";
+  const base =
+    "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors";
   const variants = {
-    primary: "bg-[var(--ink)] text-white hover:bg-black",
+    primary: "bg-[var(--brand)] text-[var(--brand-contrast)] hover:bg-[var(--brand-strong)]",
     outline: "border text-[var(--ink-soft)] hover:bg-[var(--hover-tint)]",
   };
   return (
