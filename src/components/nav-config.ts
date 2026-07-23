@@ -18,6 +18,8 @@ export interface NavLink {
   icon: LucideIcon;
   /** keywords used by the command/search palette */
   keywords?: string;
+  /** permission module code (see PermissionsPanel); omit if not gated */
+  module?: string;
 }
 
 export interface NavGroupConfig {
@@ -51,10 +53,10 @@ export const OPERATIONS_GROUP: NavGroupConfig = {
   label: "การทำงาน",
   icon: ClipboardCheck,
   links: [
-    { href: "/inspection", label: "ตรวจสอบชิ้นงานแรก", icon: ClipboardCheck, keywords: "inspection first article" },
-    { href: "/approval", label: "อนุมัติงาน (SupportHouse)", icon: BadgeCheck, keywords: "approval approve" },
-    { href: "/weekly", label: "รายงานประจำสัปดาห์", icon: FileText, keywords: "weekly report" },
-    { href: "/smart-meter", label: "ข้อมูลไฟฟ้า Smart Meter", icon: Zap, keywords: "smart meter electricity power" },
+    { href: "/inspection", label: "ตรวจสอบชิ้นงานแรก", icon: ClipboardCheck, keywords: "inspection first article", module: "inspection" },
+    { href: "/approval", label: "อนุมัติงาน (SupportHouse)", icon: BadgeCheck, keywords: "approval approve", module: "approval" },
+    { href: "/weekly", label: "รายงานประจำสัปดาห์", icon: FileText, keywords: "weekly report", module: "weekly" },
+    { href: "/smart-meter", label: "ข้อมูลไฟฟ้า Smart Meter", icon: Zap, keywords: "smart meter electricity power", module: "smart-meter" },
   ],
 };
 

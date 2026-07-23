@@ -78,7 +78,7 @@ export default function MeterForm({ initial }: { initial?: MtrMeter }) {
             <Button type="submit" disabled={submitting}>
               ✔ บันทึก
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push("/smart-meter/meters")}>
+            <Button type="button" variant="outline" onClick={() => router.push(isNew ? "/new-task" : "/smart-meter/meters")}>
               ยกเลิก
             </Button>
           </div>

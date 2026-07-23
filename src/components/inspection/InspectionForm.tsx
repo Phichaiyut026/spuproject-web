@@ -83,7 +83,7 @@ export default function InspectionForm({ initial }: { initial?: InspectionOrder 
             <Button type="submit" disabled={submitting}>
               ✔ บันทึก
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push("/inspection")}>
+            <Button type="button" variant="outline" onClick={() => router.push(initial ? "/inspection" : "/new-task")}>
               ยกเลิก
             </Button>
           </div>

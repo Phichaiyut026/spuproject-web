@@ -8,6 +8,7 @@ import {
   MapPin,
   Settings2,
   ScrollText,
+  KeyRound,
   Search,
   Download,
   RefreshCw,
@@ -20,10 +21,14 @@ import AppShell from "@/components/AppShell";
 import { Badge } from "@/components/ui";
 import OrgTree, { OrgNode } from "@/components/admin/OrgTree";
 import UserAddForm from "@/components/admin/UserAddForm";
+import DepartmentsPanel from "@/components/admin/DepartmentsPanel";
+import AreasPanel from "@/components/admin/AreasPanel";
+import SettingsPanel from "@/components/admin/SettingsPanel";
+import ActivityLogPanel from "@/components/admin/ActivityLogPanel";
+import PermissionsPanel from "@/components/admin/PermissionsPanel";
 import { api } from "@/lib/api";
-import { UserInfo } from "@/lib/types";
+import { UserInfo, SysDepartment, SysRole } from "@/lib/types";
 
-const ROLE_LABEL: Record<string, string> = { R001: "Admin", R002: "Supervisor", R003: "Staff" };
 const ROLE_TONE: Record<string, "primary" | "info" | "secondary"> = {
   R001: "primary",
   R002: "info",
@@ -35,6 +40,7 @@ const CONSOLE_SECTIONS = [
   { id: "orgs", label: "หน่วยงาน / องค์กร", icon: Building2 },
   { id: "areas", label: "จัดการพื้นที่", icon: MapPin },
   { id: "settings", label: "ตั้งค่าระบบ", icon: Settings2 },
+  { id: "permissions", label: "สิทธิ์การใช้งาน", icon: KeyRound },
   { id: "logs", label: "บันทึกการใช้งาน", icon: ScrollText },
 ];
 
@@ -42,6 +48,8 @@ const COMPANY_NAME = "ThaiMing Lighting";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserInfo[]>([]);
+  const [departments, setDepartments] = useState<SysDepartment[]>([]);
+  const [roles, setRoles] = useState<SysRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [section, setSection] = useState("users");
   const [tab, setTab] = useState<"list" | "add">("list");
@@ -51,8 +59,9 @@ export default function AdminUsersPage() {
   const [loginQuery, setLoginQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [deptFilter, setDeptFilter] = useState("");
   // committed filters (applied on Search)
-  const [applied, setApplied] = useState({ name: "", login: "", role: "", status: "" });
+  const [applied, setApplied] = useState({ name: "", login: "", role: "", status: "", dept: "" });
 
   function loadUsers() {
     setLoading(true);
@@ -64,6 +73,16 @@ export default function AdminUsersPage() {
   }
 
   useEffect(loadUsers, []);
+  useEffect(() => {
+    api.get<SysDepartment[]>("/api/admin/departments").then(setDepartments);
+    api.get<SysRole[]>("/api/admin/permissions/roles").then(setRoles);
+  }, []);
+
+  const roleLabel = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const r of roles) map[r.roleCode] = r.roleName;
+    return map;
+  }, [roles]);
 
   const tree: OrgNode[] = useMemo(() => {
     const byRole = (code: string) => users.filter((u) => u.roleCode === code).length;
@@ -72,20 +91,17 @@ export default function AdminUsersPage() {
         id: "all",
         label: COMPANY_NAME,
         count: users.length,
-        children: [
-          { id: "R001", label: "ผู้ดูแลระบบ (Admin)", count: byRole("R001") },
-          { id: "R002", label: "หัวหน้างาน (Supervisor)", count: byRole("R002") },
-          { id: "R003", label: "พนักงาน (Staff)", count: byRole("R003") },
-        ],
+        children: roles.map((r) => ({ id: r.roleCode, label: r.roleName, count: byRole(r.roleCode) })),
       },
     ];
-  }, [users]);
+  }, [users, roles]);
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (selectedOrg !== "all" && u.roleCode !== selectedOrg) return false;
       if (applied.role && u.roleCode !== applied.role) return false;
       if (applied.status && u.status !== applied.status) return false;
+      if (applied.dept && u.deptCode !== applied.dept) return false;
       if (applied.name && !u.realName?.toLowerCase().includes(applied.name.toLowerCase())) return false;
       if (applied.login && !u.username?.toLowerCase().includes(applied.login.toLowerCase())) return false;
       return true;
@@ -93,7 +109,7 @@ export default function AdminUsersPage() {
   }, [users, selectedOrg, applied]);
 
   function applySearch() {
-    setApplied({ name: nameQuery, login: loginQuery, role: roleFilter, status: statusFilter });
+    setApplied({ name: nameQuery, login: loginQuery, role: roleFilter, status: statusFilter, dept: deptFilter });
   }
 
   function resetSearch() {
@@ -101,17 +117,19 @@ export default function AdminUsersPage() {
     setLoginQuery("");
     setRoleFilter("");
     setStatusFilter("");
-    setApplied({ name: "", login: "", role: "", status: "" });
+    setDeptFilter("");
+    setApplied({ name: "", login: "", role: "", status: "", dept: "" });
   }
 
   function exportCsv() {
-    const header = ["Company", "LoginName", "Name", "Email", "Role", "Status"];
+    const header = ["Company", "LoginName", "Name", "Email", "Role", "Department", "Status"];
     const rows = filtered.map((u) => [
       COMPANY_NAME,
       u.username,
       u.realName,
       u.email ?? "",
-      ROLE_LABEL[u.roleCode] ?? u.roleCode,
+      roleLabel[u.roleCode] ?? u.roleCode,
+      u.deptName ?? "",
       u.status,
     ]);
     const csv = [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -183,13 +201,16 @@ export default function AdminUsersPage() {
 
         {/* Main panel */}
         <section className="min-w-0 flex-1 rounded-xl border bg-white shadow-sm" style={{ borderColor: "var(--line)" }}>
-          {section !== "users" ? (
-            <div className="flex flex-col items-center justify-center gap-2 px-6 py-20 text-center">
-              <Settings2 size={34} className="text-[var(--text-muted)]" />
-              <p className="text-sm text-[var(--text-muted)]">
-                ส่วน &quot;{CONSOLE_SECTIONS.find((s) => s.id === section)?.label}&quot; อยู่ระหว่างการพัฒนา
-              </p>
-            </div>
+          {section === "orgs" ? (
+            <DepartmentsPanel />
+          ) : section === "areas" ? (
+            <AreasPanel />
+          ) : section === "settings" ? (
+            <SettingsPanel />
+          ) : section === "permissions" ? (
+            <PermissionsPanel />
+          ) : section === "logs" ? (
+            <ActivityLogPanel />
           ) : (
             <>
               {/* Tabs */}
@@ -227,7 +248,7 @@ export default function AdminUsersPage() {
                 <>
                   {/* Filter bar */}
                   <div className="border-b p-4" style={{ borderColor: "var(--line)" }}>
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                       <label className="flex items-center gap-2 text-sm">
                         <span className="w-20 shrink-0 text-[var(--ink-soft)]">LoginName</span>
                         <input
@@ -257,9 +278,11 @@ export default function AdminUsersPage() {
                           style={{ borderColor: "var(--line-strong)" }}
                         >
                           <option value="">ทั้งหมด</option>
-                          <option value="R001">Admin</option>
-                          <option value="R002">Supervisor</option>
-                          <option value="R003">Staff</option>
+                          {roles.map((r) => (
+                            <option key={r.roleCode} value={r.roleCode}>
+                              {r.roleName}
+                            </option>
+                          ))}
                         </select>
                       </label>
                       <label className="flex items-center gap-2 text-sm">
@@ -273,6 +296,22 @@ export default function AdminUsersPage() {
                           <option value="">ทั้งหมด</option>
                           <option value="Active">Active</option>
                           <option value="Inactive">Inactive</option>
+                        </select>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <span className="w-20 shrink-0 text-[var(--ink-soft)]">แผนก</span>
+                        <select
+                          value={deptFilter}
+                          onChange={(e) => setDeptFilter(e.target.value)}
+                          className="w-full rounded-md border px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/30"
+                          style={{ borderColor: "var(--line-strong)" }}
+                        >
+                          <option value="">ทั้งหมด</option>
+                          {departments.map((d) => (
+                            <option key={d.deptCode} value={d.deptCode}>
+                              {d.deptName}
+                            </option>
+                          ))}
                         </select>
                       </label>
                     </div>
@@ -333,6 +372,7 @@ export default function AdminUsersPage() {
                           <th className="px-4 py-3">ชื่อ-นามสกุล</th>
                           <th className="px-4 py-3">อีเมล</th>
                           <th className="px-4 py-3">บทบาท</th>
+                          <th className="px-4 py-3">แผนก</th>
                           <th className="px-4 py-3">สถานะ</th>
                           <th className="px-4 py-3 text-right">จัดการ</th>
                         </tr>
@@ -340,7 +380,7 @@ export default function AdminUsersPage() {
                       <tbody>
                         {loading && (
                           <tr>
-                            <td colSpan={7} className="py-10 text-center text-[var(--text-muted)]">
+                            <td colSpan={8} className="py-10 text-center text-[var(--text-muted)]">
                               กำลังโหลดข้อมูล...
                             </td>
                           </tr>
@@ -358,9 +398,10 @@ export default function AdminUsersPage() {
                               <td className="px-4 py-3 text-[var(--ink-soft)]">{u.email ?? "-"}</td>
                               <td className="px-4 py-3">
                                 <Badge tone={ROLE_TONE[u.roleCode] ?? "secondary"}>
-                                  {ROLE_LABEL[u.roleCode] ?? u.roleCode}
+                                  {roleLabel[u.roleCode] ?? u.roleCode}
                                 </Badge>
                               </td>
+                              <td className="px-4 py-3 text-[var(--ink-soft)]">{u.deptName ?? "-"}</td>
                               <td className="px-4 py-3">
                                 <Badge tone={u.status === "Active" ? "success" : "secondary"}>{u.status}</Badge>
                               </td>
@@ -385,7 +426,7 @@ export default function AdminUsersPage() {
                           ))}
                         {!loading && filtered.length === 0 && (
                           <tr>
-                            <td colSpan={7} className="py-10 text-center text-[var(--text-muted)]">
+                            <td colSpan={8} className="py-10 text-center text-[var(--text-muted)]">
                               ไม่พบผู้ใช้งานที่ตรงกับเงื่อนไข
                             </td>
                           </tr>

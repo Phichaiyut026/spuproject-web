@@ -241,7 +241,7 @@ export default function WeeklyForm({
             </Button>
           </>
         )}
-        <Button variant="outline" onClick={() => router.push("/weekly")}>
+        <Button variant="outline" onClick={() => router.push(initial ? "/weekly" : "/new-task")}>
           กลับ
         </Button>
       </div>

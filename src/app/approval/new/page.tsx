@@ -54,7 +54,7 @@ export default function NewApprovalPage() {
             <Button type="submit" disabled={submitting}>
               📨 ยื่นคำขอ
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push("/approval")}>
+            <Button type="button" variant="outline" onClick={() => router.push("/new-task")}>
               ยกเลิก
             </Button>
           </div>

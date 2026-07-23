@@ -5,9 +5,13 @@ export interface UserInfo {
   email: string | null;
   roleCode: string;
   status: string;
+  deptCode: string | null;
+  deptName: string | null;
   isAdmin: boolean;
   isApprover: boolean;
   canManageMeters: boolean;
+  /** backend ต้องส่งมาเสมอ (อย่างน้อย []) ห้ามเป็น undefined — คือ module ที่ role นี้เข้าถึงได้ */
+  allowedModules: string[];
 }
 
 export interface UserOption {
@@ -125,4 +129,50 @@ export interface DashboardStats {
   pendingApprovalCount: number;
   weeklyReportCount: number;
   meterCount: number;
+}
+
+export interface SysDepartment {
+  deptCode: string;
+  deptName: string;
+  description: string | null;
+  createdAt: string;
+}
+
+export interface SysArea {
+  areaCode: string;
+  areaName: string;
+  description: string | null;
+  createdAt: string;
+}
+
+export interface SysSetting {
+  settingKey: string;
+  settingValue: string | null;
+  description: string | null;
+  updatedAt: string | null;
+}
+
+export interface ActivityLogEntry {
+  type: "Export" | "Approval" | "MeterView";
+  userName: string | null;
+  detail: string;
+  occurredAt: string;
+}
+
+export interface SysRole {
+  roleCode: string;
+  roleName: string;
+  description: string | null;
+  createdAt: string;
+}
+
+export interface SysPermission {
+  permissionCode: string;
+  permissionName: string;
+  module: string | null;
+}
+
+export interface RolePermissionPair {
+  roleCode: string;
+  permissionCode: string;
 }

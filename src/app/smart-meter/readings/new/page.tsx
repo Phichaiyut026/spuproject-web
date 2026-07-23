@@ -91,7 +91,7 @@ export default function NewReadingPage() {
             <Button type="submit" disabled={submitting}>
               ✔ บันทึก
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.push("/smart-meter")}>
+            <Button type="button" variant="outline" onClick={() => router.push("/new-task")}>
               ยกเลิก
             </Button>
           </div>

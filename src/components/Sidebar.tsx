@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ChevronDown, PanelLeftClose, Lightbulb } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { canAccessModule } from "@/lib/permissions";
 import {
   DASHBOARD_LINK,
   NAV_GROUPS,
@@ -217,9 +218,13 @@ export default function Sidebar({
           )}
 
           <div className="flex flex-col gap-1">
-            {NAV_GROUPS.map((g) => (
-              <NavGroup key={g.id} group={g} collapsed={collapsed} onNavigate={onNavigate} />
-            ))}
+            {NAV_GROUPS.map((g) => {
+              const links = g.links.filter((l) => !l.module || canAccessModule(user, l.module));
+              if (links.length === 0) return null;
+              return (
+                <NavGroup key={g.id} group={{ ...g, links }} collapsed={collapsed} onNavigate={onNavigate} />
+              );
+            })}
           </div>
 
           {user?.isAdmin && (
